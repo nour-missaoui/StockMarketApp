@@ -37,7 +37,7 @@ fun CompanyItem(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = company.excahnge,
+                    text = company.exchange,
                     fontWeight = FontWeight.Light,
                     color = MaterialTheme.colors.onBackground
                 )

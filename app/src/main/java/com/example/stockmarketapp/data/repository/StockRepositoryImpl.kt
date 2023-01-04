@@ -1,12 +1,17 @@
 package com.example.stockmarketapp.data.repository
 
+import android.util.Log
 import com.example.stockmarketapp.data.csv.CSVParser
 import com.example.stockmarketapp.data.csv.CompanyListingsParser
+import com.example.stockmarketapp.data.csv.IntraDayInfoParser
 import com.example.stockmarketapp.data.local.StockDataBase
+import com.example.stockmarketapp.data.mapper.toCompanyInfoModel
 import com.example.stockmarketapp.data.mapper.toCompanyListingEntity
 import com.example.stockmarketapp.data.mapper.toCompanyListingModel
 import com.example.stockmarketapp.data.remote.StockApi
+import com.example.stockmarketapp.domain.model.CompanyInfoModel
 import com.example.stockmarketapp.domain.model.CompanyListingModel
+import com.example.stockmarketapp.domain.model.IntraDayInfo
 import com.example.stockmarketapp.domain.repository.StockRepository
 import com.example.stockmarketapp.utils.Resource
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +25,8 @@ import javax.inject.Singleton
 class StockRepositoryImpl @Inject constructor(
     val api: StockApi,
     val db: StockDataBase,
-    val companyListingsParser: CSVParser<CompanyListingModel>
+    val companyListingsParser: CSVParser<CompanyListingModel>,
+    val intraDayInfoParser: CSVParser<IntraDayInfo>
 ) : StockRepository {
 
     private val dao = db.dao
@@ -46,6 +52,7 @@ class StockRepositoryImpl @Inject constructor(
 
             val remoteListings = try {
                 val response = api.getListings()
+                Log.i("aaaaaaaa", "getCompanyListings: ${response.charStream()}")
                 companyListingsParser.parse(response.byteStream())
 
             } catch (e: IOException) {
@@ -71,5 +78,36 @@ class StockRepositoryImpl @Inject constructor(
             }
         }
 
+    }
+
+    override suspend fun getCompanyInfo(
+        symbol: String
+    ): Resource<CompanyInfoModel> {
+       return try {
+           val result = api.getCompanyInfo(symbol)
+        return   Resource.Success(result.toCompanyInfoModel())
+
+       }  catch (e: IOException) {
+        e.printStackTrace()
+        Resource.Error("Could not Load Data")
+    } catch (e: HttpException) {
+        e.printStackTrace()
+        Resource.Error("Could not Load Data")
+    }
+    }
+
+    override suspend fun getCompanyIntraDay(symbol: String): Resource<List<IntraDayInfo>> {
+        return try {
+            val response = api.getCompanyIntradayInfo(symbol)
+            val result = intraDayInfoParser.parse(response.byteStream())
+            return Resource.Success(result)
+
+        }  catch (e: IOException) {
+            e.printStackTrace()
+            Resource.Error("Could not Load Data")
+        } catch (e: HttpException) {
+            e.printStackTrace()
+            Resource.Error("Could not Load Data")
+        }
     }
 }

@@ -7,6 +7,6 @@ import androidx.room.PrimaryKey
 data class CompanyListingEntity (
     val symbol: String,
     val name : String,
-    val excahnge: String,
+    val exchange: String,
    @PrimaryKey val id: Int? = null
 )

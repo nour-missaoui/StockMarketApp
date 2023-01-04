@@ -1,5 +1,6 @@
 package com.example.stockmarketapp.data.csv
 
+import android.util.Log
 import com.example.stockmarketapp.domain.model.CompanyListingModel
 import com.opencsv.CSVReader
 import kotlinx.coroutines.Dispatchers
@@ -16,12 +17,13 @@ class CompanyListingsParser @Inject constructor() : CSVParser<CompanyListingMode
         return withContext(Dispatchers.IO) {
             csvReader.readAll().drop(1).mapNotNull { line ->
                 val symbol = line.getOrNull(0)
+                Log.i("symbolaaaaaaaaa", "parse: ${symbol} ")
                 val name = line.getOrNull(1)
                 val exchange = line.getOrNull(2)
                 CompanyListingModel(
                     symbol = symbol ?: return@mapNotNull null,
                     name = name ?: return@mapNotNull null,
-                    excahnge = exchange ?: return@mapNotNull null
+                    exchange = exchange ?: return@mapNotNull null
                 )
             }
                 .also { csvReader.close() }

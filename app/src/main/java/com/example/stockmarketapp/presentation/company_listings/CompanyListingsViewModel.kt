@@ -22,6 +22,10 @@ class CompanyListingsViewModel @Inject constructor(
 
     private var searchJob: Job? = null
 
+    init {
+        getCompanyListings("", true)
+    }
+
     fun onEvent(event: CompanyListingsEvents) {
         when (event) {
             is CompanyListingsEvents.Refresh -> {
@@ -31,7 +35,6 @@ class CompanyListingsViewModel @Inject constructor(
                 state = state.copy(searchQuery =  event.query)
                 searchJob?.cancel()
                 searchJob = viewModelScope.launch {
-                    delay(5000L)
                     getCompanyListings()
                 }
 
